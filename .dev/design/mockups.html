@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,"SF Pro",Roboto,"Noto Sans KR",sans-serif; -webkit-font-smoothing:antialiased; }
+  body { background:#1c1c22; padding:40px; display:flex; gap:40px; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+  .col { display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .label { color:#fff; font-size:15px; font-weight:600; letter-spacing:.3px; }
+  .sub { color:#8a8a96; font-size:12px; text-align:center; max-width:300px; line-height:1.5; }
+  .phone { width:300px; height:640px; border-radius:42px; overflow:hidden; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+  .notch { position:absolute; top:14px; left:50%; transform:translateX(-50%); width:90px; height:24px; background:rgba(0,0,0,.35); border-radius:14px; z-index:5; }
+
+  /* ===== A: 다크 글래스 (잠금화면 정석) ===== */
+  .a { background:linear-gradient(160deg,#2b1f54 0%,#1a1438 55%,#0d0a1f 100%); }
+  .a .clock { color:#fff; text-align:center; padding-top:70px; }
+  .a .time { font-size:64px; font-weight:300; letter-spacing:1px; }
+  .a .date { font-size:14px; color:#b8b2d8; margin-top:2px; }
+  .a .card { margin:34px 18px 0; background:rgba(255,255,255,.10); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.14); border-radius:24px; padding:18px 18px 8px; }
+  .a .ct { color:#cfc8f0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
+  .a .row { display:flex; align-items:center; gap:12px; padding:11px 0; }
+  .a .box { width:24px; height:24px; border-radius:8px; border:2px solid rgba(255,255,255,.5); flex:none; }
+  .a .box.on { background:#7c6cff; border-color:#7c6cff; display:flex; align-items:center; justify-content:center; }
+  .a .box.on::after { content:"✓"; color:#fff; font-size:15px; font-weight:700; }
+  .a .tx { color:#fff; font-size:16px; }
+  .a .done .tx { color:#8a85a8; text-decoration:line-through; }
+
+  /* ===== B: 라이트 미니멀 ===== */
+  .b { background:#f4f5f7; }
+  .b .clock { text-align:center; padding-top:74px; color:#1a1a2e; }
+  .b .time { font-size:60px; font-weight:600; letter-spacing:-1px; }
+  .b .date { font-size:14px; color:#9aa0ad; margin-top:4px; font-weight:500; }
+  .b .card { margin:38px 16px 0; background:#fff; border-radius:22px; padding:8px 6px; box-shadow:0 8px 24px rgba(20,20,40,.06); }
+  .b .row { display:flex; align-items:center; gap:14px; padding:14px 16px; border-bottom:1px solid #f0f1f4; }
+  .b .row:last-child { border-bottom:none; }
+  .b .box { width:24px; height:24px; border-radius:50%; border:2px solid #d4d7de; flex:none; }
+  .b .box.on { background:#4f6bed; border-color:#4f6bed; display:flex; align-items:center; justify-content:center; }
+  .b .box.on::after { content:"✓"; color:#fff; font-size:14px; font-weight:700; }
+  .b .tx { color:#23262e; font-size:16px; font-weight:500; }
+  .b .done .tx { color:#b6bac3; text-decoration:line-through; }
+
+  /* ===== C: 따뜻한 카드 ===== */
+  .c { background:linear-gradient(165deg,#ffe9d6 0%,#ffd9c2 50%,#ffc9be 100%); }
+  .c .clock { text-align:center; padding-top:72px; color:#5b3a2e; }
+  .c .time { font-size:60px; font-weight:700; letter-spacing:-1px; }
+  .c .date { font-size:14px; color:#b07d63; margin-top:4px; font-weight:600; }
+  .c .card { margin:36px 16px 0; background:rgba(255,255,255,.7); backdrop-filter:blur(8px); border-radius:26px; padding:14px 10px; }
+  .c .row { display:flex; align-items:center; gap:13px; padding:13px 14px; }
+  .c .pill { flex:1; display:flex; align-items:center; gap:13px; }
+  .c .box { width:26px; height:26px; border-radius:9px; border:2.5px solid #e8a87c; flex:none; }
+  .c .box.on { background:#ff8a5c; border-color:#ff8a5c; display:flex; align-items:center; justify-content:center; }
+  .c .box.on::after { content:"✓"; color:#fff; font-size:15px; font-weight:800; }
+  .c .tx { color:#5b3a2e; font-size:16px; font-weight:600; }
+  .c .done .tx { color:#c9a392; text-decoration:line-through; }
+</style>
+</head>
+<body>
+  <div class="col">
+    <div class="phone a">
+      <div class="notch"></div>
+      <div class="clock"><div class="time">9:41</div><div class="date">6월 7일 토요일</div></div>
+      <div class="card">
+        <div class="ct">오늘 할 일</div>
+        <div class="row done"><div class="box on"></div><div class="tx">아침 운동</div></div>
+        <div class="row"><div class="box"></div><div class="tx">팀 회의 자료 준비</div></div>
+        <div class="row"><div class="box"></div><div class="tx">장보기</div></div>
+      </div>
+    </div>
+    <div class="label">A · 다크 글래스</div>
+    <div class="sub">잠금화면 정석. 큰 시계 + 반투명 글래스 카드. 잠금화면 위에 "떠 있는 패널" 느낌.</div>
+  </div>
+
+  <div class="col">
+    <div class="phone b">
+      <div class="notch"></div>
+      <div class="clock"><div class="time">9:41</div><div class="date">6월 7일 토요일</div></div>
+      <div class="card">
+        <div class="row done"><div class="box on"></div><div class="tx">아침 운동</div></div>
+        <div class="row"><div class="box"></div><div class="tx">팀 회의 자료 준비</div></div>
+        <div class="row"><div class="box"></div><div class="tx">장보기</div></div>
+      </div>
+    </div>
+    <div class="label">B · 라이트 미니멀</div>
+    <div class="sub">밝고 깔끔. 흰 카드 + 인디고 accent. 완료는 취소선+회색으로 죽임. 가독성 최고.</div>
+  </div>
+
+  <div class="col">
+    <div class="phone c">
+      <div class="notch"></div>
+      <div class="clock"><div class="time">9:41</div><div class="date">6월 7일 토요일</div></div>
+      <div class="card">
+        <div class="row done"><div class="box on"></div><div class="tx">아침 운동</div></div>
+        <div class="row"><div class="box"></div><div class="tx">팀 회의 자료 준비</div></div>
+        <div class="row"><div class="box"></div><div class="tx">장보기</div></div>
+      </div>
+    </div>
+    <div class="label">C · 따뜻한 카드</div>
+    <div class="sub">크림/코랄 톤. 둥근 카드 + 부드러운 색. 친근하고 가벼운 감성.</div>
+  </div>
+</body>
+</html>
