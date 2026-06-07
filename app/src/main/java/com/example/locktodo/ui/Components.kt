@@ -7,9 +7,12 @@ import android.content.IntentFilter
 import android.text.format.DateFormat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -20,9 +23,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,6 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -43,6 +48,22 @@ import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+/** 화면 재개(ON_RESUME) 시 저장소에서 재로드 — 메인↔잠금 동기화(FIX1, D-SYNC). */
+@Composable
+fun rememberTodos(): androidx.compose.runtime.MutableState<List<com.example.locktodo.Todo>> {
+    val ctx = LocalContext.current
+    val state = remember { androidx.compose.runtime.mutableStateOf<List<com.example.locktodo.Todo>>(com.example.locktodo.TodoStore.load(ctx)) }
+    val owner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    DisposableEffect(owner) {
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME) state.value = com.example.locktodo.TodoStore.load(ctx)
+        }
+        owner.lifecycle.addObserver(obs)
+        onDispose { owner.lifecycle.removeObserver(obs) }
+    }
+    return state
+}
 
 /** 카드 — 테마 fill/border/shape. */
 @Composable
@@ -56,19 +77,34 @@ fun TodoCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(withBorder.padding(horizontal = 16.dp, vertical = 12.dp)) { content() }
 }
 
-/** 체크박스 — 미완 외곽선 / 완료 accent 채움 + ✓. 토글 애니(150/180/120ms). 표시 전용(클릭은 row). */
+/** 체크박스 — 미완 외곽선 / 완료 accent 채움 + ✓ 커스텀 path. box scale 0.9→1.0 + ✓ draw-in. */
 @Composable
 fun TodoCheckbox(checked: Boolean) {
     val t = LocalAppTheme.current
     val fill by animateColorAsState(if (checked) t.accent else Color.Transparent, tween(150), label = "fill")
     val borderColor by animateColorAsState(if (checked) t.accent else t.mutedWeak, tween(150), label = "border")
+    val boxScale by animateFloatAsState(if (checked) 1f else 0.9f, tween(150, easing = FastOutSlowInEasing), label = "scale")
     Box(
-        Modifier.size(24.dp).clip(t.checkboxShape).background(fill, t.checkboxShape)
+        Modifier
+            .size(24.dp)
+            .graphicsLayer { scaleX = boxScale; scaleY = boxScale }
+            .clip(t.checkboxShape)
+            .background(fill, t.checkboxShape)
             .border(2.dp, borderColor, t.checkboxShape),
         contentAlignment = Alignment.Center,
     ) {
+        // ✓ vector path (M6 12.5 L10.5 17 L18 7.5), 폰트 글리프 폐기(D16)
         AnimatedVisibility(checked, enter = scaleIn(tween(180)), exit = scaleOut(tween(120))) {
-            Icon(Icons.Default.Check, contentDescription = null, tint = t.onAccent, modifier = Modifier.size(16.dp))
+            val tint = t.onAccent
+            Canvas(Modifier.size(24.dp)) {
+                val w = size.width
+                val p = Path().apply {
+                    moveTo(w * 0.25f, w * 0.52f)
+                    lineTo(w * 0.44f, w * 0.71f)
+                    lineTo(w * 0.75f, w * 0.31f)
+                }
+                drawPath(p, color = tint, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            }
         }
     }
 }

@@ -31,7 +31,8 @@ object TodoStore {
 
     fun add(ctx: Context, text: String) {
         val list = load(ctx)
-        list.add(Todo(System.currentTimeMillis(), text, false))
+        val id = (list.maxOfOrNull { it.id } ?: 0L) + 1L // 중복 없는 단조 증가 id
+        list.add(Todo(id, text, false))
         save(ctx, list)
     }
 

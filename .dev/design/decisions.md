@@ -85,3 +85,31 @@ R1 결함 해소 판정 + 구체값 확정. devil R2가 "결정≠반영"(토큰
 4. MainActivity → Compose: 테마 세그먼트 + 입력/추가 + 목록(✕ 삭제 + Undo 스낵바)
 5. ScreenService: keyguard 가드(D12) + fullScreenIntent fallback 준비
 6. edge-to-edge inset, 폰트 클램프, 완료 sink/접기
+
+## Round 4 — devil 4-pass 결과 (전부 FAIL) + 수정 목록
+
+핵심: "결정≠반영" 재발 — 토큰을 design-tokens.md 에 박았으나 구현 코드가 절반만 반영(devil-3). devil 4렌즈 전원 FAIL.
+
+### 수정 대상 (1차 = 블로커/HIGH, 2차 = MED, 3차 = 추후)
+**1차(블로커):**
+- FIX1 D-SYNC: Main/Lock 에 lifecycle ON_RESUME 재로드(DisposableEffect+LocalLifecycleOwner)
+- FIX2 BAL fallback: ScreenService canDrawOverlays 체크 + try/catch + fullScreenIntent 노티
+- FIX3 ✓ 커스텀 path: Components Canvas drawPath(M6 12.5 L10.5 17 L18 7.5), Icons.Check 폐기
+- FIX4 권한 동선: 시작 전 권한 상태 체크, 미허용 안내(최소 Toast)
+- FIX5 id 중복: TodoStore.add id = maxId+1
+- FIX6 가로 고정: manifest 두 Activity portrait
+- FIX7 startForeground/receiver 순서·try, teardown 안전
+
+**2차(MED):**
+- FIX8 토글 row 점프: LazyColumn animateItem
+- FIX9 D22 완료>3 접기
+- FIX10 누락 토큰: pressed/disabled/focus/card-shadow + space 그리드 상수화
+- FIX11 card-label "할 일"(전테마), empty(메인), clock-ampm 분리
+- FIX12 세이프에어리어 시계 top(statusBars), 카드 동적 높이+fade
+- FIX13 테마전환 220ms crossfade(animateColorAsState)
+- FIX14 D20 swipe-dismiss/requestDismissKeyguard, 카드내부 탭 전파 차단
+
+**3차(추후/저위험):**
+- 폰트 sp 클램프, 긴텍스트 maxLines/ellipsis, 햅틱, 재부팅 BOOT_COMPLETED
+
+리뷰 원본: review-round-4/devil-{1-function,2-arch,3-design,4-risk}.md

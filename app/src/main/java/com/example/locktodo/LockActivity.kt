@@ -64,7 +64,7 @@ class LockActivity : ComponentActivity() {
 private fun LockScreen(onDismiss: () -> Unit) {
     val t = LocalAppTheme.current
     val ctx = LocalContext.current
-    var todos by remember { mutableStateOf(TodoStore.load(ctx)) }
+    var todos by com.example.locktodo.ui.rememberTodos()
     // 카드 밖 빈 영역 탭 = dismiss (D20). row toggle 이 이벤트를 우선 소비.
     Column(
         Modifier
@@ -78,15 +78,23 @@ private fun LockScreen(onDismiss: () -> Unit) {
         ClockHeader()
         Spacer(Modifier.height(24.dp))
         TodoCard(Modifier.padding(horizontal = 16.dp)) {
-            if (todos.isEmpty()) {
-                EmptyState()
-            } else {
-                val sorted = todos.sortedBy { it.done } // 미완 먼저, 완료 하단 sink
-                LazyColumn(Modifier.heightIn(max = 480.dp)) {
-                    items(sorted, key = { it.id }) { todo ->
-                        LockRow(done = todo.done, text = todo.text) {
-                            TodoStore.toggle(ctx, todo.id)
-                            todos = TodoStore.load(ctx)
+            Column {
+                Text(
+                    "할 일",
+                    color = t.mutedStrong,
+                    style = TextStyle(fontSize = 12.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, letterSpacing = 1.sp),
+                )
+                Spacer(Modifier.height(8.dp))
+                if (todos.isEmpty()) {
+                    EmptyState()
+                } else {
+                    val sorted = todos.sortedBy { it.done } // 미완 먼저, 완료 하단 sink
+                    LazyColumn(Modifier.heightIn(max = 480.dp)) {
+                        items(sorted, key = { it.id }) { todo ->
+                            LockRow(done = todo.done, text = todo.text, modifier = Modifier.animateItem()) {
+                                TodoStore.toggle(ctx, todo.id)
+                                todos = TodoStore.load(ctx)
+                            }
                         }
                     }
                 }
@@ -96,9 +104,9 @@ private fun LockScreen(onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun LockRow(done: Boolean, text: String, onToggle: () -> Unit) {
+private fun LockRow(done: Boolean, text: String, modifier: Modifier = Modifier, onToggle: () -> Unit) {
     androidx.compose.foundation.layout.Row(
-        Modifier
+        modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
             .clickable { onToggle() }
@@ -107,6 +115,6 @@ private fun LockRow(done: Boolean, text: String, onToggle: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         TodoCheckbox(checked = done)
-        Text(text, style = itemTextStyle(done))
+        Text(text, style = itemTextStyle(done), maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
     }
 }

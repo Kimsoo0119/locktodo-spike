@@ -82,7 +82,7 @@ private fun MainScreen(themeId: ThemeId, onTheme: (ThemeId) -> Unit) {
     val t = LocalAppTheme.current
     val ctx = LocalContext.current
     val activity = ctx as? Activity
-    var todos by remember { mutableStateOf(TodoStore.load(ctx)) }
+    var todos by com.example.locktodo.ui.rememberTodos()
     var input by remember { mutableStateOf(TextFieldValue("")) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -156,18 +156,22 @@ private fun MainScreen(themeId: ThemeId, onTheme: (ThemeId) -> Unit) {
             Spacer(Modifier.height(8.dp))
 
             // 목록 (완료 하단 sink, ✕ 삭제 + Undo)
+            if (todos.isEmpty()) {
+                com.example.locktodo.ui.EmptyState()
+                return@Column
+            }
             val sorted = todos.sortedBy { it.done }
             LazyColumn {
                 items(sorted, key = { it.id }) { todo ->
                     Row(
-                        Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(vertical = 4.dp),
+                        Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(vertical = 4.dp).animateItem(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Box(Modifier.clickable { TodoStore.toggle(ctx, todo.id); todos = TodoStore.load(ctx) }) {
                             TodoCheckbox(checked = todo.done)
                         }
-                        Text(todo.text, style = itemTextStyle(todo.done), modifier = Modifier.weight(1f))
+                        Text(todo.text, style = itemTextStyle(todo.done), maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                         Box(
                             Modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(8.dp)).clickable {
                                 val idx = todos.indexOfFirst { it.id == todo.id }
@@ -217,5 +221,10 @@ private fun requestPerms(activity: Activity) {
 }
 
 private fun startSvc(activity: Activity) {
+    if (!Settings.canDrawOverlays(activity)) {
+        android.widget.Toast.makeText(activity, "먼저 '권한'을 눌러 화면 위 표시를 허용해 주세요", android.widget.Toast.LENGTH_LONG).show()
+        return
+    }
     androidx.core.content.ContextCompat.startForegroundService(activity, Intent(activity, ScreenService::class.java))
+    android.widget.Toast.makeText(activity, "시작됨 — 화면을 끄고 켜면 잠금화면에 표시됩니다", android.widget.Toast.LENGTH_SHORT).show()
 }
