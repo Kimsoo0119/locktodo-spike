@@ -17,6 +17,9 @@ class ScreenService : Service() {
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_SCREEN_ON) {
+                // D12: 잠금 상태일 때만 표시(잠금 아니면 홈/앱 위로 튀어나오지 않게).
+                val km = context.getSystemService(Context.KEYGUARD_SERVICE) as android.app.KeyguardManager
+                if (!km.isKeyguardLocked) return
                 context.startActivity(
                     Intent(context, LockActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 )

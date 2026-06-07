@@ -39,4 +39,18 @@ object TodoStore {
 
     fun toggle(ctx: Context, id: Long) =
         save(ctx, load(ctx).map { if (it.id == id) it.copy(done = !it.done) else it })
+
+    fun insert(ctx: Context, todo: Todo, index: Int) {
+        val list = load(ctx)
+        list.add(index.coerceIn(0, list.size), todo)
+        save(ctx, list)
+    }
+
+    private const val KEY_THEME = "theme"
+    fun loadTheme(ctx: Context): String =
+        ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY_THEME, "A") ?: "A"
+
+    fun saveTheme(ctx: Context, theme: String) {
+        ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit().putString(KEY_THEME, theme).apply()
+    }
 }
