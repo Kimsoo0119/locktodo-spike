@@ -12,7 +12,9 @@
 `showWhenLocked` 액티비티를 **잠금 상태에서만** 잠금화면 위에 띄우고, 그 안의 체크박스를 **잠금 해제 없이** 토글합니다. 기능은 추가 / 삭제(+실행취소) / 체크로 좁혀 군더더기를 없앴습니다.
 
 ## 데모
-![잠금화면 시계+체크](docs/screenshots/04-lock-checked.png)
+잠금화면(시계+할 일) · 메인(3테마)
+![잠금화면 체크](docs/screenshots/lock-checked.png)
+![메인 다크](docs/screenshots/main-dark.png)
 
 ## 기술
 - Kotlin + Jetpack Compose, `AppTheme` 토큰 시스템(3테마: 다크/라이트/따뜻)

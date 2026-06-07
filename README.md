@@ -11,11 +11,15 @@
 
 ## 데모
 
-| 메인 (다크) | 잠금화면 시계 (따뜻) | 잠금화면 체크 |
+### 3가지 테마 (메인)
+| 다크 | 라이트 | 따뜻 |
 |---|---|---|
-| ![메인](docs/screenshots/01-main-dark.png) | ![시계](docs/screenshots/03-lock-clock.png) | ![완료](docs/screenshots/04-lock-checked.png) |
+| ![다크](docs/screenshots/main-dark.png) | ![라이트](docs/screenshots/main-light.png) | ![따뜻](docs/screenshots/main-warm.png) |
 
-테마 선택(따뜻): ![따뜻](docs/screenshots/02-main-warm.png)
+### 잠금화면 (잠금 해제 없이)
+| 시계 + 할 일 | 무잠금 체크 |
+|---|---|
+| ![시계](docs/screenshots/lock-clock.png) | ![완료](docs/screenshots/lock-checked.png) |
 
 ## 동작 방식
 
