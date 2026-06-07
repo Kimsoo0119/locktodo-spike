@@ -1,0 +1,42 @@
+package com.example.locktodo
+
+import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
+
+data class Todo(val id: Long, val text: String, val done: Boolean)
+
+/** 할 일을 SharedPreferences 에 JSON 으로 저장합니다. 모델은 id/text/done 뿐입니다. */
+object TodoStore {
+    private const val PREF = "locktodo"
+    private const val KEY = "todos"
+
+    fun load(ctx: Context): MutableList<Todo> {
+        val raw = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY, "[]") ?: "[]"
+        val arr = JSONArray(raw)
+        val list = mutableListOf<Todo>()
+        for (i in 0 until arr.length()) {
+            val o = arr.getJSONObject(i)
+            list.add(Todo(o.getLong("id"), o.getString("text"), o.getBoolean("done")))
+        }
+        return list
+    }
+
+    private fun save(ctx: Context, list: List<Todo>) {
+        val arr = JSONArray()
+        list.forEach { arr.put(JSONObject().put("id", it.id).put("text", it.text).put("done", it.done)) }
+        ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
+            .putString(KEY, arr.toString()).apply()
+    }
+
+    fun add(ctx: Context, text: String) {
+        val list = load(ctx)
+        list.add(Todo(System.currentTimeMillis(), text, false))
+        save(ctx, list)
+    }
+
+    fun remove(ctx: Context, id: Long) = save(ctx, load(ctx).filterNot { it.id == id })
+
+    fun toggle(ctx: Context, id: Long) =
+        save(ctx, load(ctx).map { if (it.id == id) it.copy(done = !it.done) else it })
+}
