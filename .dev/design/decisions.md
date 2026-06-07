@@ -61,3 +61,27 @@ R1 결함 해소 판정 + 구체값 확정. devil R2가 "결정≠반영"(토큰
 - 재부팅 직후 표시(device-protected storage) = spike scope-out 권장, 요구 확정 시 재오픈
 - BAL(백그라운드 Activity 시작 제한) targetSdk36/OEM 차단 가능성 → 에뮬+실기 회귀 필수
 - 카드 오버플로 max 표시 개수 정책, 완료 5개 초과 접기
+
+## Round 3 결정 (2026-06-07) — 수렴/구현 준비 완료
+
+통합 4페르소나 리뷰 → "구현 준비 완료" 판정. 잔여 3건 반영.
+
+| # | 결정 | 근거 |
+|---|------|------|
+| D20 | **D12 문구 교정**: "카드 밖 제스처를 OS로 패스(터치 통과)"는 불투명 Activity에서 물리적 불가(통과 주면 체크도 안 먹음). → 카드 밖 swipe/back을 **우리가 감지해 `finish()` 또는 `KeyguardManager.requestDismissKeyguard()`(API26+)** 호출. 멘탈모델(스와이프=해제) 유지, Compose 표준으로 구현 | R3 #4 (직역 시 유일 블로커) |
+| D21 | **체크박스 radius A 8→6 / C 9→12** (1dp차는 식별 불가 → 모양 축 실효화) | R3 #1 |
+| D22 | **카드 오버플로**: 표시 상한 없음, maxHeight=화면−시계−인셋 내부 LazyColumn 스크롤+하단 fade. **완료>3개면 "완료 {n}개 ▾" 접기**(잠금=기본접힘 미완우선, 메인=펼침) | R3 #3 |
+| D23 | **BAL 테스트 게이트**: SYSTEM_ALERT_WINDOW가 BAL 합법 면제라 통과. keyguard 가드 추가 후 권한 토글로 면제 실증 + 에뮬 회귀, 차단 시 fullScreenIntent 노티 fallback | R3 #2 |
+
+## 디자인 리뷰 종료 선언
+- R1(4페르소나) → R2(4페르소나) → R3(통합) 로 수렴 완료. 구현을 막는 설계 결함 없음.
+- 사용자 완료기준의 "4번째 루프 = devil review 전부 패스"는 **구현 산출물 대상 최종 게이트(P4)**로 배치(R2 순환참조 제거와 정합).
+- 구현 전 코드 패치 대상(문서와 어긋난 곳): ScreenService(keyguard 가드 없음), LockActivity(AppCompat/removeAllViews/해제동선 없음) → P2에서 Compose 전면 재작성.
+
+## P2 구현 계획
+1. Compose 셋업(D18): compiler plugin 2.0.21, compose-bom 2024.12.01, activity-compose 1.9.3, AppTheme parent → Material
+2. 테마 시스템: AppTheme data class ×3 + LocalAppTheme CompositionLocal (토큰 1:1, when(theme) 금지)
+3. LockActivity → ComponentActivity setContent: 시계(ClockHeader 로컬 remember + TIME_TICK) + 카드 + 체크(토글 애니) + 잠금해제 동선(D20)
+4. MainActivity → Compose: 테마 세그먼트 + 입력/추가 + 목록(✕ 삭제 + Undo 스낵바)
+5. ScreenService: keyguard 가드(D12) + fullScreenIntent fallback 준비
+6. edge-to-edge inset, 폰트 클램프, 완료 sink/접기

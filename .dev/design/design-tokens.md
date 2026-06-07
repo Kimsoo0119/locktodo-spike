@@ -68,9 +68,9 @@
 
 ## 체크박스 / radius / 모션
 - ✓ vector: viewport 24×24, path `M6 12.5 L10.5 17 L18 7.5`, stroke 2dp(C 2.5), round cap/join, fill none (폰트 글리프 폐기)
-- 박스 radius: A 8 / B 원형 / C 9, border 미완 2dp
+- 박스 radius: A 6 / B 원형 / C 12, border 미완 2dp (테마 모양 축 식별성 확보)
 - 토글 모션: box scale 0.9→1.0 150ms FastOutSlowIn, ✓ trimPathEnd 0→1 180ms, 취소선/alpha 120ms fade, 역재생 해제. **200ms 초과 금지**
-- radius 세트: card A24/B22/C26, field A14/B12/C16, chip A12/B999/C16, checkbox A8/B원형/C9
+- radius 세트: card A24/B22/C26, field A14/B12/C16, chip A12/B999/C16, checkbox A6/B원형/C12
 - 테마 전환: 색 220ms crossfade(animateColorAsState)
 
 ## 컴포넌트 메모
