@@ -33,3 +33,31 @@
 - 시계: 1분 갱신 시 전체 깜빡임 없음(부분 갱신)
 - 테마 전환: 메인에서 A/B/C 선택 시 메인·잠금화면 즉시 반영
 - 기능 회귀: 추가/삭제(+Undo)/체크 동작 유지(에뮬 실측)
+
+## Round 2 결정 (2026-06-07)
+
+R1 결함 해소 판정 + 구체값 확정. devil R2가 "결정≠반영"(토큰 미수정)을 치명으로 지적 → 이번에 design-tokens.md 실제 수정.
+
+| # | 결정 | 근거 |
+|---|------|------|
+| D12 | **아키텍처 = 잠금 상태에서만 전체 대체(full-bleed) 표시 + 잠금해제 동선 보존**. ScreenService 에 `KeyguardManager.isKeyguardLocked` 가드 추가(잠금 아니면 LockActivity 안 띄움). LockActivity 는 OS 잠금화면을 덮되 back/스와이프로 dismiss 가능, 카드 밖 제스처는 OS 로 패스(갇힘 방지) | devil R2 #1(코드 근거: ScreenService 가드 없음), ux #3·designer §F-15 |
+| D13 | **결정을 실제 산출물에 반영**: design-tokens.md 를 R2 확정값으로 전면 재작성(blur 제거, 대비 통과색, 상태토큰, 완료=베이스×0.6). mockups.html 의 blur 도 구현 시 제거 | devil R2 #2 ("토큰이 결정 안 따름") |
+| D14 | **글래스 fill 확정**: A fill #FFF@.10/border #FFF@.16, C fill #FFF@.70/border #FFF@.55+shadow, 불투명 등가(A #332B4F, C #FFF6EF) 병기 | designer R2 §A |
+| D15 | **완료 = text×alpha 0.60 + 취소선 1.5dp** 전테마 통일, 완료전용 muted 삭제. **on-accent.C = #5B3A2E**(코랄 위 갈색 ✓ 4.33:1) | designer R2 §B·C |
+| D16 | **토큰 시스템화**: 4dp 그리드, 타입/weight 스케일, 체크 벡터 path, radius 세트, muted 2분리(strong/weak), 세이프에어리어 인셋 기반 시계 top | designer R2 §D·E·G |
+| D17 | **라벨 "오늘 할 일" → "할 일"**(날짜 없는 모델이라 자정 후 거짓말 방지), 잠금해제 제스처 패스, 가로=세로고정, 폰트 1.3배 클램프 | ux R2 #5·#4 |
+| D18 | **Compose 셋업 확정**: compiler plugin 2.0.21 + compose-bom 2024.12.01 + activity-compose 1.9.3. **AppTheme parent 를 Material(android:Theme.Material.Light.NoActionBar)로 교체**(appcompat 제거 시 빌드깨짐 주의). **edge-to-edge 강제**(targetSdk36) → safeDrawing inset. 시계 state 는 ClockHeader 로컬 remember + DisposableEffect(TIME_TICK, RECEIVER_NOT_EXPORTED) | dev R2 #1·#2·#3 |
+| D19 | 토글=animateColorAsState+scaleIn, row 전체 clickable(체크박스 단독 금지), Undo=Scaffold+SnackbarHost 원래 index 복원(메인 전용) | dev R2 #5 |
+
+## R1 결함 해소 판정 (devil R2)
+- ✅ 닫힘: 시계 깜빡임(부분 갱신 D7/D18), 구현 스택(Compose)
+- 🔧 R2에서 닫음: 아키텍처(D12), 토큰 미반영(D13~D16), 라벨 거짓말(D17), 대비(토큰 수정)
+- ⏳ R3 확인: 테마 정체성(blur 폐기 시 A/C 색만 차이 — 배경 그라데이션+체크모양+accent로 차별화 유지 검증), 완료 기준 순환참조 제거(아래)
+
+## 완료 기준 정정 (순환참조 제거, devil R2 #5)
+- "devil 4-pass 통과"는 완료 기준이 아니라 **별도 최종 게이트**(P4). 작업 완료 기준 = §9 정량 지표(대비 토큰 계산 통과 / row≥56dp / 시계 무깜빡임 / 테마전환 즉시 / 추가·삭제·체크 에뮬 회귀) 충족.
+
+## R2 미해결 (R3에서)
+- 재부팅 직후 표시(device-protected storage) = spike scope-out 권장, 요구 확정 시 재오픈
+- BAL(백그라운드 Activity 시작 제한) targetSdk36/OEM 차단 가능성 → 에뮬+실기 회귀 필수
+- 카드 오버플로 max 표시 개수 정책, 완료 5개 초과 접기
